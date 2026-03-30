@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import type { Transaction } from "@/lib/transactions";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const COLORS = [
   "hsl(221, 83%, 53%)",
@@ -15,6 +16,8 @@ interface Props {
 }
 
 export default function CategoryPieChart({ transactions }: Props) {
+  const isMobile = useIsMobile();
+  
   const catMap: Record<string, number> = {};
   transactions
     .filter((t) => t.type === "expense")
@@ -35,10 +38,18 @@ export default function CategoryPieChart({ transactions }: Props) {
   return (
     <div className="bg-card rounded-lg p-3 sm:p-4 surface-card">
       <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2 sm:mb-4">Expenses by Category</h3>
-      <div className="h-[180px] sm:h-[200px] md:h-[250px]">
+      <div className="h-[200px] sm:h-[220px] md:h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} cx="50%" cy="50%" innerRadius={30} outerRadius={60} dataKey="value" paddingAngle={2}>
+            <Pie 
+              data={data} 
+              cx="50%" 
+              cy="45%" 
+              innerRadius={isMobile ? 30 : 40} 
+              outerRadius={isMobile ? 50 : 80} 
+              dataKey="value" 
+              paddingAngle={2}
+            >
               {data.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
@@ -52,7 +63,18 @@ export default function CategoryPieChart({ transactions }: Props) {
               }}
               formatter={(val: number) => `₹${val.toFixed(2)}`}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom" 
+              height={isMobile ? 80 : 60}
+              formatter={(value) => <span className="text-xs">{value}</span>}
+              wrapperStyle={{
+                fontSize: isMobile ? '9px' : '10px',
+                paddingTop: '10px'
+              }}
+              iconSize={isMobile ? 8 : 12}
+              layout={isMobile ? "horizontal" : "horizontal"}
+              align="center"
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
